@@ -35,8 +35,10 @@ namespace arp
         std::cerr << "Warning: Assigning short name to [" << name << "] pretty much useless since it is a positional argument." << std::endl;
       }
     }
+    ArgparserArgument() : m_name(), m_short_name(), m_description(), m_defined(false), m_required(false), m_short_name_defined(false), m_positional(nopos) {}
     virtual ~ArgparserArgument() {}
-    ArgparserArgument(const ArgparserArgument&) = delete;
+    ArgparserArgument(const ArgparserArgument&)     = delete;
+    ArgparserArgument(ArgparserArgument&&) noexcept = default;
     bool defined() { return m_defined; };
     bool required() { return m_required; };
     bool has_short() { return m_short_name_defined; };
