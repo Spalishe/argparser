@@ -13,6 +13,8 @@ int main(int argc, char* argv[])
   auto arg2 = ap.add<arp::def>("--argname2", "Argument 2", arp::required, arp::nopos, "-an2");
   // Add a non-required non-positional argument named argname3
   auto arg3 = ap.add<arp::uint>("--argname3", "Argument 3", arp::norequired, arp::nopos, "-an3");
+  // Add a vector of same arguments named argname4
+  auto arg4 = ap.add_multiple<arp::str>("--argname4", "Argument 4", arp::norequired, "-an4");
   ap.parse();
 
   std::cout << arg0->val() << std::endl;
@@ -27,6 +29,12 @@ int main(int argc, char* argv[])
   for(auto& c : ap.getPositionalArgs())
   {
     std::cout << c << std::endl;
+  }
+  // Print out all strings that was defined under arg4
+  std::cout << "All strings in arg4:" << std::endl;
+  for(auto& c : *arg4)
+  {
+    std::cout << c.val() << std::endl;
   }
   return 0;
 }

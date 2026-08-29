@@ -173,6 +173,47 @@ namespace arp
     const char* type() const override { return "definition"; }
   };
 
+  template <typename T>
+  class multi : public ArgparserArgument
+  {
+  public:
+    using ArgparserArgument::ArgparserArgument;
+
+    int read(std::vector<std::string> args, int start) override
+    {
+      if(start >= args.size())
+        return 0;
+      T elem;
+      int consumed = elem.read(args, start);
+      if(consumed > 0)
+      {
+        m_defined = true;
+        m_data.push_back(std::move(elem));
+      }
+      return consumed;
+    };
+
+    virtual std::string tostring() override
+    {
+      std::string str_res;
+      for(auto& e : m_data)
+      {
+        str_res += e.tostring() + " ";
+      }
+      return str_res;
+    };
+
+    std::vector<T>& val() { return m_data; };
+
+    auto begin() { return m_data.begin(); }
+    auto end() { return m_data.end(); }
+
+    const char* type() const override { return "multiple"; }
+
+  private:
+    std::vector<T> m_data;
+  };
+
   class Argparser
   {
   public:
@@ -201,6 +242,20 @@ namespace arp
       }
 
       return std::move(v);
+    }
+
+    template <typename T>
+    std::shared_ptr<multi<T>> add_multiple(const std::string& name, const std::string& description, const requirement required, const std::string& short_name = "")
+    {
+      std::shared_ptr<multi<T>> v = std::make_shared<multi<T>>(name, description, required, nopos, short_name);
+      auto& param                 = (*v.get());
+      m_conf.insert_or_assign(param.getName(), v);
+      if(param.has_short())
+      {
+        m_conf.insert_or_assign(param.getShortName(), v);
+      }
+
+      return v;
     }
 
     void setDescription(const std::string& desc)
